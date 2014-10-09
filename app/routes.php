@@ -12,3 +12,4 @@
 */
 
 Route::get('/api/ping/', 'PingController@getPing');
+Route::post('project', 'ProjectController@create');
