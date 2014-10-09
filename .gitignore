@@ -3,3 +3,4 @@
 .env.php
 /vendor/
 /app/storage/
+/app/config/packages/graham-campbell/github/config.php
