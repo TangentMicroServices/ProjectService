@@ -1,10 +1,10 @@
 from django.conf.urls import patterns, include, url
 from django.contrib import admin
 
+from api.api import project_router
+
 urlpatterns = patterns('',
     # Examples:
-    # url(r'^$', 'projectservice.views.home', name='home'),
-    # url(r'^blog/', include('blog.urls')),
-
+    url(r'^', include(project_router.urls)), 
     url(r'^admin/', include(admin.site.urls)),
 )
