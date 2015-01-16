@@ -58,6 +58,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 
+    ## add this:
     'tokenauth.middleware.TokenAuthMiddleware',
 )
 
