@@ -2,10 +2,14 @@
   
   tasks:
     - name: update apt cache 
-      apt: update_cache=yes cache_valid_time=3600      
+      apt: update_cache=yes cache_valid_time=3600    
+    - name: Install data 
+      django_manage: command=loaddata app_path=/var/www/{{djangoapp_projectname}} fixtures=data/test.json virtualenv=/srv/venvs/{{djangoapp_projectname}}
 
   roles:
     - toast38coza.djangoapp
+
+
 
   vars:
     postgresql_databases:
