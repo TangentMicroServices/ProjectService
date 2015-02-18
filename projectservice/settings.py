@@ -95,6 +95,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.7/howto/static-files/
 
 STATIC_URL = '/static/'
+STATIC_ROOT = '/srv/static/projectservice/'
 
 # CUSTOM AUTH
 AUTHENTICATION_BACKENDS = (
@@ -107,6 +108,7 @@ AUTHENTICATION_BACKENDS = (
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
+        'rest_framework.authentication.SessionAuthentication',
     ),
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'tokenauth.authbackends.RESTTokenAuthBackend',        
