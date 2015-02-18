@@ -32,7 +32,7 @@ class ProjectEndpointTestCase(TestCase):
 	def test_get_projects_list_requires_auth(self):
 
 		mock_auth_failure()
-		response = self.c.get("/projects/")
+		response = self.c.get("/api/v1/projects/")
 		
 		assert response.status_code == 403, 'Expect permission denied'
 
@@ -41,6 +41,6 @@ class ProjectEndpointTestCase(TestCase):
 
 		mock_auth_success()
 
-		response = self.c.get("/projects/")
+		response = self.c.get("/api/v1/projects/")
 
 		assert response.status_code == 200, 'Expect 200 OK'
