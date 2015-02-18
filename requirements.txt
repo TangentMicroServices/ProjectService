@@ -4,6 +4,7 @@ requests
 djangorestframework
 django-rest-swagger
 django-filter
+pygithub3
 
 ## custom libs
 -e git://github.com/TangentMicroServices/PythonAuthenticationLib.git#egg=tokenauth

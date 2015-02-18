@@ -29,7 +29,7 @@ class ProjectEndpointTestCase(TestCase):
 		self.c = Client(Authorization='Token 123')
 
 	@responses.activate
-	def test_get_entry_list_requires_auth(self):
+	def test_get_projects_list_requires_auth(self):
 
 		mock_auth_failure()
 		response = self.c.get("/projects/")
@@ -37,7 +37,7 @@ class ProjectEndpointTestCase(TestCase):
 		assert response.status_code == 403, 'Expect permission denied'
 
 	@responses.activate
-	def test_get_entry_list(self):
+	def test_get_project_list(self):
 
 		mock_auth_success()
 
