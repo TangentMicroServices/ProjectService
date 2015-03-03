@@ -39,6 +39,7 @@ INSTALLED_APPS = (
 
     ## 3rd party
     'rest_framework',
+    'rest_framework_swagger',
 
     ## custom
     'tokenauth',
@@ -130,3 +131,14 @@ JENKINS_TASKS = (
 PROJECT_APPS = (
     'api',
 )
+
+SWAGGER_SETTINGS = {
+    'api_key': 'fb5df470df0fa3727c49a61608996618d0954289',
+    'info': {
+        'contact': 'admin@tangentsolutions.co.za',
+        'description': 'A microservice for handling project status and information. From scaffolding 3rd party tools etc to managing resourcing and project tracking',                       
+        'license': 'MIT',
+        'title': 'ProjectService',
+    },
+
+}
