@@ -118,6 +118,8 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_FILTER_BACKENDS': (
         'rest_framework.filters.DjangoFilterBackend',
+        'rest_framework.filters.SearchFilter',
+        'rest_framework.filters.OrderingFilter',
     ),
 }
 
@@ -147,4 +149,6 @@ SWAGGER_SETTINGS = {
     },
 
 }
+
+CORS_ORIGIN_ALLOW_ALL = True
 
