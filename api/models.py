@@ -97,7 +97,9 @@ class Task(models.Model):
     title = models.CharField('Task Name', max_length=200, blank=False, null=False)
     
     due_date = models.DateField('Due Date', blank=True, null=True)
-    estimated_hours = models.DecimalField('Est. Hours', max_digits=5, decimal_places=2, default=0)
+
+    ## This is overkill .. why do we want to require 2 decimal points on an hour??
+    estimated_hours = models.DecimalField('Est. Hours', max_digits=7, decimal_places=2, default=0)
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
