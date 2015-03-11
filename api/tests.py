@@ -1,9 +1,11 @@
 from django.test import TestCase, Client
 from django.conf import settings
+from django.db import IntegrityError
 from django.contrib.auth.models import User
-from .models import Project, Task
+from .models import Project, Task, Resource
 
 from tokenauth.authbackends import TokenAuthBackend
+from  datetime import date
 
 import requests 
 import responses
@@ -27,11 +29,45 @@ def mock_auth_failure():
 
 class ProjectModelTestCase(TestCase):
 
+	def test_project_unicode(self):
+		project = Project.quick_create(title="Test")
+		assert project.__unicode__() == 'Test'
+
+
 	def test_quick_create(self):
 		project = Project.quick_create()
 		
 		assert isinstance(project, Project), 'Project instance is created'
 
+
+class ResourceModelTestCase(TestCase):
+
+	def test_resource_quick_create(self):
+		resource = Resource.quick_create()
+
+		assert isinstance(resource, Resource)
+
+	def test_resource_quick_create_with_details(self):
+		project = Project.quick_create(title="TEST")
+		extra_data = {
+			"rate": 100
+		}
+		resource = Resource.quick_create(project=project, **extra_data)
+
+		assert resource.project.title == 'TEST', 'Expect project is explicitly set'
+		assert resource.rate == 100.00, 'Expect rate to be set by kwargs'
+	
+	def test_project_user_unique_together(self):
+		project = Project.quick_create()
+		start_date = date.today()
+		Resource.objects.create(project=project, user=1, start_date=start_date)
+		Resource.objects.create(project=project, user=2, start_date=start_date)
+
+		try:
+			Resource.objects.create(project=project, user=2)
+			self.fail("Should not be able to add the same project and user twice")
+		except IntegrityError:
+			pass
 
 class TaskModelTestCase(TestCase):
 

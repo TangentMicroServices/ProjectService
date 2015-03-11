@@ -69,17 +69,24 @@ class Resource(models.Model):
     class Meta:
         unique_together = ("project", "user")
 
-    def get_summary(self, entries):
+    @staticmethod 
+    def quick_create(project = None, user = 1, start_date = None, **kwargs):
+        
+        if project is None:
+            project = Project.quick_create()
 
-        hours = entries.filter(user=self.user).aggregate(Sum('hours')).get("hours__sum", 0)
-        total_cost = float(hours) * float(self.rate)
-        return {
-            "hours" : hours,
-            "total_cost" : total_cost,
+        if start_date is None:
+            start_date = date.today()
+
+        data = {
+            "project": project, 
+            "user": user, 
+            "start_date": start_date
         }
+        data.update(kwargs)
 
-    def get_entries(self):
-        return Entry.objects.filter(user=self.user, project=self.project)    
+        return Resource.objects.create(**data)
+
 
 class Task(models.Model):
     
@@ -99,16 +106,9 @@ class Task(models.Model):
     def verbose_name(self):
         return "{0} - {1}" . format (self.project.name, self.name)
     
-
     class Meta:
         verbose_name = u"ProjectTask"
         verbose_name_plural = verbose_name
-
-    @staticmethod
-    def get_tasks(user):
-        
-        user_projects = Project.objects.filter(resource_project__user=user).values_list("id")
-        return ProjectTask.objects.filter(project__in=user_projects)    
 
     @staticmethod
     def quick_create(project=None, title=None):
