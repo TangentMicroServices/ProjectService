@@ -115,7 +115,10 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.SessionAuthentication',
         'tokenauth.authbackends.RESTTokenAuthBackend',        
-    )
+    ),
+    'DEFAULT_FILTER_BACKENDS': (
+        'rest_framework.filters.DjangoFilterBackend',
+    ),
 }
 
 # Services:

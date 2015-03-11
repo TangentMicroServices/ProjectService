@@ -28,8 +28,6 @@ class ProjectEndpointTestCase(TestCase):
 	def setUp(self):
 		self.c = Client(Authorization='Token 123')
 
-
-
 	@responses.activate
 	def test_get_projects_list_requires_auth(self):
 
@@ -45,3 +43,9 @@ class ProjectEndpointTestCase(TestCase):
 		response = self.c.get("/api/v1/projects/")
 
 		assert response.status_code == 200, 'Expect 200 OK'
+
+
+
+
+
+

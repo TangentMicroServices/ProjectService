@@ -46,6 +46,7 @@ class Resource(models.Model):
         return Entry.objects.filter(user=self.user, project=self.project)    
 
 class Task(models.Model):
+    
     def __unicode__(self):
         return "%s - %s" % (self.project.name, self.name)
 
@@ -62,7 +63,7 @@ class Task(models.Model):
     def verbose_name(self):
         return "{0} - {1}" . format (self.project.name, self.name)
     
-
+    
     class Meta:
         verbose_name = u"ProjectTask"
         verbose_name_plural = verbose_name

@@ -30,7 +30,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
 
 
 # Serializers define the API representation.
-class ResourceSerializer(serializers.HyperlinkedModelSerializer):
+class ResourceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Resource        
 
@@ -40,7 +40,7 @@ class ResourceViewSet(viewsets.ModelViewSet):
     queryset = Resource.objects.all()
     serializer_class = ResourceSerializer
 
-class TaskSerializer(serializers.HyperlinkedModelSerializer):
+class TaskSerializer(serializers.ModelSerializer):
     class Meta:
         model = Task        
 
@@ -49,6 +49,7 @@ class TaskViewSet(viewsets.ModelViewSet):
     
     queryset = Task.objects.all()
     serializer_class = TaskSerializer
+    filter_fields = ('project',)
         
 
 # Routers provide an easy way of automatically determining the URL conf.
