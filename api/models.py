@@ -19,7 +19,7 @@ class Project(models.Model):
     updated = models.DateTimeField(auto_now=True)
 
     @staticmethod
-    def quick_create(title=None, description=None, start_date=None):
+    def quick_create(title=None, description=None, user=None, start_date=None, is_billable=False, is_active=True):
         '''
         Utility method for quickly creating a an instance
         '''
@@ -32,10 +32,16 @@ class Project(models.Model):
         if start_date is None:
             start_date = date.today()
 
+        if user is None:
+            user = 1        
+
         data = {
             "title": title, 
             "description": description,
             "start_date": start_date,
+            #"user": user,
+            "is_active": is_active,
+            "is_billable": is_billable
         }
 
         return Project.objects.create(**data)

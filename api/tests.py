@@ -7,6 +7,7 @@ from tokenauth.authbackends import TokenAuthBackend
 
 import requests 
 import responses
+import json
 
 
 def mock_auth_success():
@@ -45,6 +46,14 @@ class ProjectEndpointTestCase(TestCase):
 	def setUp(self):
 		self.c = Client(Authorization='Token 123')
 
+		## setup a bunch of Projects
+		Project.quick_create(title="P1", description="Search me", is_billable=True)
+		Project.quick_create(title="P2", is_billable=True)
+		Project.quick_create(title="P3", is_active=False)
+		Project.quick_create(title="P4", user=2)
+		Project.quick_create(title="P5", user=2)
+		Project.quick_create(title="P6")
+
 	@responses.activate
 	def test_get_projects_list_requires_auth(self):
 
@@ -60,6 +69,57 @@ class ProjectEndpointTestCase(TestCase):
 		response = self.c.get("/api/v1/projects/")
 
 		assert response.status_code == 200, 'Expect 200 OK'
+
+	@responses.activate
+	def test_get_project_list_filter_on_active(self):
+
+		mock_auth_success()
+		response = self.c.get("/api/v1/projects/?is_active=False")
+
+		titles = [project.get("title") for project in json.loads(response.content)]
+		expected_titles = ['P3'] 
+		assert titles == expected_titles, 'Expect results to be filtered on is_active=False'
+
+	@responses.activate
+	def test_get_project_list_filter_on_billable(self):
+
+		mock_auth_success()
+		response = self.c.get("/api/v1/projects/?is_billable=True")
+
+		titles = [project.get("title") for project in json.loads(response.content)]
+		expected_titles = ['P1', 'P2'] 
+		assert titles == expected_titles, 'Expect results to be filtered on is_billable=True'
+
+	@responses.activate
+	def test_get_project_list_search_title(self):
+
+		mock_auth_success()
+		response = self.c.get("/api/v1/projects/?search=P1")
+
+		titles = [project.get("title") for project in json.loads(response.content)]
+		expected_titles = ['P1'] 
+		assert titles == expected_titles, 'Expect search to return matching title'
+
+	@responses.activate
+	def test_get_project_list_search_description(self):
+
+		mock_auth_success()
+		response = self.c.get("/api/v1/projects/?search=Search")
+
+		titles = [project.get("title") for project in json.loads(response.content)]
+		expected_titles = ['P1'] 
+		assert titles == expected_titles, 'Expect search to return matching description'
+
+	@responses.activate
+	def test_get_project_orders_by_title(self):
+
+		mock_auth_success()
+		response = self.c.get("/api/v1/projects/?ordering=title")
+
+		titles = [project.get("title") for project in json.loads(response.content)]
+		expected_titles = ['P1', 'P2', 'P3', 'P4', 'P5', 'P6'] 
+		assert titles == expected_titles, 'Expect search results ordered by title'
+
 
 	@responses.activate
 	def test_get_project(self):
