@@ -23,4 +23,4 @@ pylint
 coverage
 django-jenkins
 django-extensions
-
+django-cors-headers
