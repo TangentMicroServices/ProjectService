@@ -100,7 +100,7 @@ class ProjectSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Project  
-        fields = ('title', 'description', 'start_date', 'end_date', 'is_billable', 'is_active', 'task_set', 'resource_set',)      
+        fields = ('pk', 'title', 'description', 'start_date', 'end_date', 'is_billable', 'is_active', 'task_set', 'resource_set',)      
 
 
 class ProjectFilter(django_filters.FilterSet):
