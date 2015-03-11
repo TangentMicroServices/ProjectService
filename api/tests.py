@@ -69,7 +69,7 @@ class ProjectEndpointTestCase(TestCase):
 
 		response = self.c.get("/api/v1/projects/{0}/" . format (project.pk))
 
-		expected_fields = ['title', 'description', 'start_date', 'end_date', 'is_billable', 'is_active', 'task_set',]
+		expected_fields = ['title', 'description', 'start_date', 'end_date', 'is_billable', 'is_active', 'task_set', 'resource_set']
 
 		for field in expected_fields:
 			assert response.data.get(field, "NOTSET") != "NOTSET", 'Assert field {0} is returned in the response' . format (field)
