@@ -44,6 +44,7 @@ INSTALLED_APPS = (
     ## custom
     'tokenauth',
     'api',
+    'health',
 
     # testing etc:
     'django_jenkins',
