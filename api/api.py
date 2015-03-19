@@ -5,10 +5,21 @@ from rest_framework.decorators import detail_route, list_route
 import os
 import django_filters
 
+# Serializers define the API representation.
+class TaskProjectSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Project  
+        fields = ('pk', 'title', 'description', 'start_date', 'end_date', 'is_billable', 'is_active')      
+
+
 class TaskSerializer(serializers.ModelSerializer):
+
+    project_data = TaskProjectSerializer(source='project', read_only=True)
 
     class Meta:
         model = Task   
+        fields = ('id', 'title', 'due_date', 'estimated_hours', 'estimated_hours', 'estimated_hours', 'project', 'project_data')
         
 
 class TaskFilter(django_filters.FilterSet):
