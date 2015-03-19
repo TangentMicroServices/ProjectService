@@ -14,7 +14,7 @@ import json
 
 def mock_auth_success():
 
-	url = '{0}/users/me/' . format(settings.USERSERVICE_BASE_URL)		
+	url = '{0}/api/v1/users/me/' . format(settings.USERSERVICE_BASE_URL)		
 	response_string = '{"username": "TEST"}'
 	responses.add(responses.GET, url,
               body=response_string, status=200,
@@ -22,7 +22,7 @@ def mock_auth_success():
 
 def mock_auth_failure():
 
-	url = '{0}/users/me/' . format(settings.USERSERVICE_BASE_URL)		
+	url = '{0}/api/v1/users/me/' . format(settings.USERSERVICE_BASE_URL)		
 	responses.add(responses.GET, url,
               body='', status=401,
               content_type='application/json')
