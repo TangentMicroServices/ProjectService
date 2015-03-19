@@ -5,17 +5,14 @@ import requests
 import responses
 
 
-def mock_auth_success():
-
-	url = '/health/'	
-	responses.add(responses.GET, url,
-              status=200,
-              content_type='application/json')
-
-
 class HealthTestCase(TestCase):
+    
+    def setUp(self):
+        self.client = Client()
 
 	def test_health_returns_useful_information(self):
 
 		response = self.client.get('/health/')
-		self.assertEqual(response.data, {"name": "UserService", "explorer_url": "/api-explorer/","version": settings.VERSION})
+    
+        assert response.status_code == 200, 'Expect 200 OK'
+        self.assertEqual(response.data, {"name": "ProjectService", "explorer_url": "/api-explorer/","version": settings.VERSION})
