@@ -2,8 +2,15 @@ from django.conf.urls import url, include
 from models import Project, Resource, Task
 from rest_framework import routers, serializers, viewsets
 from rest_framework.decorators import detail_route, list_route
+from rest_framework.response import Response
+from django.conf import settings
+from django.contrib.auth.models import User, Group
 import os
 import django_filters
+import responses
+import urllib2
+import json
+import pprint
 
 # Serializers define the API representation.
 class TaskProjectSerializer(serializers.ModelSerializer):
@@ -102,6 +109,14 @@ class ResourceViewSet(viewsets.ModelViewSet):
     queryset = Resource.objects.all()
     serializer_class = ResourceSerializer
 
+class EntriesSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Resource
+
+class EntriesViewSet(viewsets.ModelViewSet):
+    queryset = Resource.objects.all()
+    serializer_class = EntriesSerializer
 
 # Serializers define the API representation.
 class ProjectSerializer(serializers.ModelSerializer):
@@ -129,6 +144,20 @@ class ProjectViewSet(viewsets.ModelViewSet):
     filter_class = ProjectFilter
     search_fields = ('title', 'description')
     ordering_fields = ('start_date', 'end_date', 'title')
+
+    def get_queryset(self):
+        user = self.request.user
+        #user_resource = django_filters.CharFilter(name="resource__user")
+        #u = User.objects.get(pk=2)
+
+        if user.is_superuser:
+            return Project.objects.all()
+
+        resources = Resource.objects.filter(user=user.pk)        
+        project_ids = [resource.get("project_id") for resource in resources.values()]
+        projects = Project.objects.filter(id__in = project_ids)
+
+        return projects
 
     # this is overwritten purely for the purpose of documentation for swagger
     def list(self, request, *args, **kwargs):
@@ -178,6 +207,33 @@ class ProjectViewSet(viewsets.ModelViewSet):
         print os.environ['PIVOTAL_TOKEN']
         print os.environ['HIPCHAT_TOKEN']
         print os.environ['GITHUB_TOKEN']
+
+    @detail_route(methods=['GET'])
+    def entries(self, request, pk=None):
+        '''
+        Shows the entries for a project
+        '''
+
+        #url = '{0}/api/v1/entry/' . format(settings.HOURSSERVICE_BASE_URL)
+        #response_string = '{"username": "TEST"}'
+        #response = (responses.GET, url,
+        #      body=response_string, status=200,
+        #      content_type='application/json')
+
+        #response = self.client.post(url, content_type='application/json')
+
+        url = '{0}/api/v1/entry/' . format(settings.HOURSSERVICE_BASE_URL)
+
+        #response = self.client.get(url, content_type='application/json')
+
+        response = urllib2.Request(url)
+
+        json = {
+          'count': 4
+        }
+
+        return Response(response)
+        
 
 
 
