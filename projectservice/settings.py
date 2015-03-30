@@ -128,6 +128,7 @@ REST_FRAMEWORK = {
 
 ## Service base urls without a trailing slash:
 USERSERVICE_BASE_URL = 'http://userservice.staging.tangentmicroservices.com'
+HOURSSERVICE_BASE_URL = 'http://hoursservice.staging.tangentmicroservices.com'
 
 JENKINS_TASKS = (
     'django_jenkins.tasks.run_pylint',

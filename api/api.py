@@ -2,8 +2,14 @@ from django.conf.urls import url, include
 from models import Project, Resource, Task
 from rest_framework import routers, serializers, viewsets
 from rest_framework.decorators import detail_route, list_route
+from rest_framework.response import Response
+from django.conf import settings
+from django.contrib.auth.models import User, Group
 import os
 import django_filters
+import responses
+import json
+import pprint
 
 # Serializers define the API representation.
 class TaskProjectSerializer(serializers.ModelSerializer):
@@ -102,6 +108,14 @@ class ResourceViewSet(viewsets.ModelViewSet):
     queryset = Resource.objects.all()
     serializer_class = ResourceSerializer
 
+class EntriesSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Resource
+
+class EntriesViewSet(viewsets.ModelViewSet):
+    queryset = Resource.objects.all()
+    serializer_class = EntriesSerializer
 
 # Serializers define the API representation.
 class ProjectSerializer(serializers.ModelSerializer):
@@ -129,6 +143,18 @@ class ProjectViewSet(viewsets.ModelViewSet):
     filter_class = ProjectFilter
     search_fields = ('title', 'description')
     ordering_fields = ('start_date', 'end_date', 'title')
+
+    def get_queryset(self):
+        user = self.request.user
+
+        if user.is_superuser:
+            return Project.objects.all()
+
+        resources = Resource.objects.filter(user=user.pk)        
+        project_ids = [resource.get("project_id") for resource in resources.values()]
+        projects = Project.objects.filter(id__in = project_ids)
+
+        return projects
 
     # this is overwritten purely for the purpose of documentation for swagger
     def list(self, request, *args, **kwargs):
@@ -178,8 +204,6 @@ class ProjectViewSet(viewsets.ModelViewSet):
         print os.environ['PIVOTAL_TOKEN']
         print os.environ['HIPCHAT_TOKEN']
         print os.environ['GITHUB_TOKEN']
-
-
 
 # Routers provide an easy way of automatically determining the URL conf.
 project_router = routers.DefaultRouter()

@@ -2,7 +2,7 @@ from django.test import TestCase, Client
 from django.conf import settings
 from django.db import IntegrityError
 from django.contrib.auth.models import User
-from .models import Project, Task, Resource
+from api.models import Project, Task, Resource
 
 from tokenauth.authbackends import TokenAuthBackend
 from  datetime import date
@@ -12,10 +12,16 @@ import responses
 import json
 
 
-def mock_auth_success():
+def mock_auth_success(user=None):
 
 	url = '{0}/api/v1/users/me/' . format(settings.USERSERVICE_BASE_URL)		
 	response_string = '{"username": "TEST"}'
+	if user is not None:
+		response_string = {
+						"username": user.username,
+						"id": user.pk
+						}
+		response_string = json.dumps(response_string)
 	responses.add(responses.GET, url,
               body=response_string, status=200,
               content_type='application/json')
@@ -38,6 +44,8 @@ class ProjectModelTestCase(TestCase):
 		project = Project.quick_create()
 		
 		assert isinstance(project, Project), 'Project instance is created'
+
+	
 
 
 class ResourceModelTestCase(TestCase):
@@ -82,13 +90,24 @@ class ProjectEndpointTestCase(TestCase):
 	def setUp(self):
 		self.c = Client(Authorization='Token 123')
 
+		self.joe_admin = User.objects.create_superuser(username="admin", password="test", email="joe@soap.com")
+		self.joe_soap = User.objects.create_user(username="joe", password="test")
+		self.joe_soap.save()
+
 		## setup a bunch of Projects
-		Project.quick_create(title="P1", description="Search me", is_billable=True)
-		Project.quick_create(title="P2", is_billable=True)
-		Project.quick_create(title="P3", is_active=False)
-		Project.quick_create(title="P4", user=2)
-		Project.quick_create(title="P5", user=2)
-		Project.quick_create(title="P6")
+		p1 = Project.quick_create(title="P1", description="Search me", is_billable=True)
+		p2 = Project.quick_create(title="P2", is_billable=True)
+		p3 = Project.quick_create(title="P3", is_active=False)
+		p4 = Project.quick_create(title="P4", user=self.joe_soap.pk)
+		p5 = Project.quick_create(title="P5", user=self.joe_soap.pk)
+		p6 = Project.quick_create(title="P6")
+
+		Resource.quick_create(user=self.joe_soap.pk, project=p4)
+		Resource.quick_create(user=self.joe_soap.pk, project=p3)
+
+		Resource.quick_create(user=self.joe_admin.pk, project=p1)
+		Resource.quick_create(user=self.joe_admin.pk, project=p2)
+
 
 	@responses.activate
 	def test_get_projects_list_requires_auth(self):
@@ -100,16 +119,31 @@ class ProjectEndpointTestCase(TestCase):
 	@responses.activate
 	def test_get_project_list(self):
 
-		mock_auth_success()
+		mock_auth_success(self.joe_soap)
+		#self.c.logout()
+		#login_result = self.c.login(username="joe", password="test")
 
 		response = self.c.get("/api/v1/projects/")
 
 		assert response.status_code == 200, 'Expect 200 OK'
+		assert len(json.loads(response.content)) == 2, 'Expect 2 projects back'
+
+	@responses.activate
+	def test_get_project_list_admin_gets_all_projects(self):
+
+		mock_auth_success(self.joe_admin)
+		#self.c.logout()
+		#login_result = self.c.login(username="joe", password="test")
+
+		response = self.c.get("/api/v1/projects/")
+
+		assert response.status_code == 200, 'Expect 200 OK'
+		assert len(json.loads(response.content)) == 6, 'Expect 6 projects back'
 
 	@responses.activate
 	def test_get_project_list_filter_on_active(self):
 
-		mock_auth_success()
+		mock_auth_success(self.joe_admin)
 		response = self.c.get("/api/v1/projects/?is_active=False")
 
 		titles = [project.get("title") for project in json.loads(response.content)]
@@ -119,7 +153,7 @@ class ProjectEndpointTestCase(TestCase):
 	@responses.activate
 	def test_get_project_list_filter_on_billable(self):
 
-		mock_auth_success()
+		mock_auth_success(self.joe_admin)
 		response = self.c.get("/api/v1/projects/?is_billable=True")
 
 		titles = [project.get("title") for project in json.loads(response.content)]
@@ -129,7 +163,7 @@ class ProjectEndpointTestCase(TestCase):
 	@responses.activate
 	def test_get_project_list_search_title(self):
 
-		mock_auth_success()
+		mock_auth_success(self.joe_admin)
 		response = self.c.get("/api/v1/projects/?search=P1")
 
 		titles = [project.get("title") for project in json.loads(response.content)]
@@ -139,7 +173,7 @@ class ProjectEndpointTestCase(TestCase):
 	@responses.activate
 	def test_get_project_list_search_description(self):
 
-		mock_auth_success()
+		mock_auth_success(self.joe_admin)
 		response = self.c.get("/api/v1/projects/?search=Search")
 
 		titles = [project.get("title") for project in json.loads(response.content)]
@@ -149,7 +183,7 @@ class ProjectEndpointTestCase(TestCase):
 	@responses.activate
 	def test_get_project_orders_by_title(self):
 
-		mock_auth_success()
+		mock_auth_success(self.joe_admin)
 		response = self.c.get("/api/v1/projects/?ordering=title")
 
 		titles = [project.get("title") for project in json.loads(response.content)]
@@ -161,7 +195,7 @@ class ProjectEndpointTestCase(TestCase):
 	def test_get_project(self):
 
 		project = Project.quick_create()
-		mock_auth_success()
+		mock_auth_success(self.joe_admin)
 
 		response = self.c.get("/api/v1/projects/{0}/" . format (project.pk))
 
