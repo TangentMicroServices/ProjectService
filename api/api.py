@@ -8,7 +8,6 @@ from django.contrib.auth.models import User, Group
 import os
 import django_filters
 import responses
-import urllib2
 import json
 import pprint
 
@@ -147,8 +146,6 @@ class ProjectViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
-        #user_resource = django_filters.CharFilter(name="resource__user")
-        #u = User.objects.get(pk=2)
 
         if user.is_superuser:
             return Project.objects.all()
@@ -207,35 +204,6 @@ class ProjectViewSet(viewsets.ModelViewSet):
         print os.environ['PIVOTAL_TOKEN']
         print os.environ['HIPCHAT_TOKEN']
         print os.environ['GITHUB_TOKEN']
-
-    @detail_route(methods=['GET'])
-    def entries(self, request, pk=None):
-        '''
-        Shows the entries for a project
-        '''
-
-        #url = '{0}/api/v1/entry/' . format(settings.HOURSSERVICE_BASE_URL)
-        #response_string = '{"username": "TEST"}'
-        #response = (responses.GET, url,
-        #      body=response_string, status=200,
-        #      content_type='application/json')
-
-        #response = self.client.post(url, content_type='application/json')
-
-        url = '{0}/api/v1/entry/' . format(settings.HOURSSERVICE_BASE_URL)
-
-        #response = self.client.get(url, content_type='application/json')
-
-        response = urllib2.Request(url)
-
-        json = {
-          'count': 4
-        }
-
-        return Response(response)
-        
-
-
 
 # Routers provide an easy way of automatically determining the URL conf.
 project_router = routers.DefaultRouter()
