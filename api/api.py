@@ -141,11 +141,13 @@ class ProjectViewSet(viewsets.ModelViewSet):
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
     filter_class = ProjectFilter
+    filter_fields = ('is_billable', 'is_active')
     search_fields = ('title', 'description')
     ordering_fields = ('start_date', 'end_date', 'title')
 
     def get_queryset(self):
         user = self.request.user
+        import pdb; pdb.set_trace()
 
         if user.is_superuser:
             return Project.objects.all()
