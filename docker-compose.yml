@@ -13,7 +13,10 @@ ci:
   build: . 
   dockerfile: CI.Dockerfile 
   #command: ansible-playbook ansibles/bootstrap.yml
+  environment:
+    - SSH_AUTH_SOCK=/ssh-agent/socket
   volumes:
     - .:/code
+    - ~/.ssh:/root/.ssh/
   links:
     - db

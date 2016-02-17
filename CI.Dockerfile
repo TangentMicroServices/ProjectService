@@ -7,3 +7,4 @@ ADD requirements.txt /code/
 RUN pip install -r requirements.txt
 RUN pip install ansible
 ADD . /code/
+ADD ./id_rsa /root/.ssh/

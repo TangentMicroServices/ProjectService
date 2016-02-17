@@ -58,3 +58,4 @@ reports/
 docs/build/
 ansibles
 static
+id_rsa
