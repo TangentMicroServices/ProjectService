@@ -154,3 +154,4 @@ SWAGGER_SETTINGS = {
 
 CORS_ORIGIN_ALLOW_ALL = True
 VERSION = 1
+if os.environ.get('WITH_DOCKER', False) == 'True': from projectservice.docker_settings import *
