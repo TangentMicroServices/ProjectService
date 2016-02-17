@@ -1,4 +1,4 @@
-FROM python:3.4
+FROM python:2.7
 ENV PYTHONUNBUFFERED 1
 ENV WITH_DOCKER True
 RUN mkdir /code
