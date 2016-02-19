@@ -52,7 +52,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 
     ## add this:
-    #'tokenauth.middleware.TokenAuthMiddleware',
+    'api.middleware.KongConsumerMiddleware',
 )
 
 TEMPLATES = [

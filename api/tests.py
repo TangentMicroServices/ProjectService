@@ -167,7 +167,7 @@ class ProjectEndpointTestCase(TestCase):
 		"""Admin can search all projects by description"""
 
 		self.c.login(username="admin", password="test")
-		response = self.c.get("/projects/?search=Search")
+		response = self.c.get("/projects/?search=Search&ordering=title")
 
 		titles = [project.get("title") for project in response.json()]
 		expected_titles = ['P1', 'P4'] 
@@ -205,12 +205,28 @@ class ProjectEndpointTestCase(TestCase):
 		# todo: 
 		# put a proper assertion in here.
 
-class TaskEndpointTestCase(TestCase):
+class KongConsumerMiddlewareTestCase(TestCase):
 
 	def setUp(self):
-		self.c = Client(Authorization='Token 123')
+		self.c = Client()
+		self.user = User.objects.create_user(username="joe", password="test")
 
-		# create some Tasks
+		Project.quick_create(user=self.user.pk)
+
+
+	def test_user_is_logged_in(self):
+		
+		
+		headers = {
+			'X-Consumer-Custom-ID':self.user.pk, 
+			'X-Consumer-Username':self.user.username}
+		c = Client(**headers)
+		
+		response = c.get("/projects/", **headers)
+
+
+
+		
 
 
 
