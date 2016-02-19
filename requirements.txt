@@ -16,6 +16,7 @@ ipython
 
 pylint
 coverage
+django_nose
 django-jenkins
 django-extensions
 django-cors-headers
