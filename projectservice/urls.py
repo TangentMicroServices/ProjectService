@@ -6,11 +6,13 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = patterns('',
-    url(r'^api/v1/', include(project_router.urls)), 
-    url(r'^api-explorer/', include('rest_framework_swagger.urls')),
+    
+    url(r'^explorer/', include('rest_framework_swagger.urls')),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^health/', api.health),
+    url(r'^', include(project_router.urls)), 
+    
 )
 
 

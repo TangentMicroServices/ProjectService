@@ -8,6 +8,11 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.7/ref/settings/
 """
 
+"""
+NB: Do not customize anything in here. 
+All customizations are to be made in docker_settings.py
+"""
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
@@ -22,35 +27,19 @@ SECRET_KEY = '@cocitg!7pb@!4+0=ab9*%z4ao1qct)@z%+072shx#*%)1e#f6'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-TEMPLATE_DEBUG = True
-
 ALLOWED_HOSTS = []
 
 
 # Application definition
 
-INSTALLED_APPS = (
+INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-
-    ## 3rd party
-    'rest_framework',
-    'rest_framework_swagger',
-
-    ## custom
-    'tokenauth',
-    'api',
-    'health',
-
-    # testing etc:
-    'django_jenkins',
-    'django_extensions',
-    'corsheaders',
-)
+]
 
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -63,7 +52,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 
     ## add this:
-    'tokenauth.middleware.TokenAuthMiddleware',
+    #'tokenauth.middleware.TokenAuthMiddleware',
 )
 
 TEMPLATES = [
@@ -137,54 +126,7 @@ STATICFILES_FINDERS = (
 # CUSTOM AUTH
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
-    'tokenauth.authbackends.TokenAuthBackend'
+    #'tokenauth.authbackends.TokenAuthBackend'
 )
 
-## REST
-
-REST_FRAMEWORK = {
-    'DEFAULT_PERMISSION_CLASSES': (
-        'rest_framework.permissions.IsAuthenticated',        
-    ),
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework.authentication.SessionAuthentication',
-        'tokenauth.authbackends.RESTTokenAuthBackend',        
-    ),
-    'DEFAULT_FILTER_BACKENDS': (
-        'rest_framework.filters.DjangoFilterBackend',
-        'rest_framework.filters.SearchFilter',
-        'rest_framework.filters.OrderingFilter',
-    ),
-}
-
-# Services:
-
-## Service base urls without a trailing slash:
-USERSERVICE_BASE_URL = 'http://userservice.staging.tangentmicroservices.com'
-HOURSSERVICE_BASE_URL = 'http://hoursservice.staging.tangentmicroservices.com'
-
-JENKINS_TASKS = (
-    'django_jenkins.tasks.run_pylint',
-    'django_jenkins.tasks.with_coverage',
-    # 'django_jenkins.tasks.run_sloccount',
-    # 'django_jenkins.tasks.run_graphmodels'
-)
-
-PROJECT_APPS = (
-    'api',
-)
-
-SWAGGER_SETTINGS = {
-    'api_key': 'fb5df470df0fa3727c49a61608996618d0954289',
-    'info': {
-        'contact': 'admin@tangentsolutions.co.za',
-        'description': 'A microservice for handling project status and information. From scaffolding 3rd party tools etc to managing resourcing and project tracking',                       
-        'license': 'MIT',
-        'title': 'ProjectService',
-    },
-
-}
-
-CORS_ORIGIN_ALLOW_ALL = True
-VERSION = 1
 if os.environ.get('WITH_DOCKER', False) == 'True': from projectservice.docker_settings import *

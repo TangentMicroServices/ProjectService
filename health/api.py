@@ -4,15 +4,22 @@ from rest_framework.decorators import api_view, permission_classes, authenticati
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from django.conf import settings
+from django.contrib.auth.models import User
 
 @api_view(['GET'])
 @permission_classes((AllowAny,))
-@authentication_classes((SessionAuthentication, BasicAuthentication))
 def health(request):
 
+	# make sure the db is there.
+	User.objects.first()
 	json = {
-		#'version': settings.VERSION,
-		'name': "ProjectService"
+		'name': "ProjectService",
+		'status': 'up',
+		'info': {
+			'explorer': '/explorer',
+			'api': '/',
+			'health': '.. well, you\'re here right?'
+		}
 	}
-	
+
 	return Response(json)
