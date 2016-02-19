@@ -8,6 +8,7 @@ django-filter
 
 ## dev requirements
 mock
+markdown
 responses
 ipdb
 ipython
@@ -20,3 +21,6 @@ django_nose
 django-jenkins
 django-extensions
 django-cors-headers
+pinocchio
+nose-html-reporting
+

@@ -4,34 +4,12 @@ from django.db import IntegrityError
 from django.contrib.auth.models import User
 from api.models import Project, Task, Resource
 
-from tokenauth.authbackends import TokenAuthBackend
 from  datetime import date
 
 import requests 
 import responses
 import json
 
-
-def mock_auth_success(user=None):
-
-	url = '{0}/api/v1/users/me/' . format(settings.USERSERVICE_BASE_URL)		
-	response_string = '{"username": "TEST"}'
-	if user is not None:
-		response_string = {
-						"username": user.username,
-						"id": user.pk
-						}
-		response_string = json.dumps(response_string)
-	responses.add(responses.GET, url,
-              body=response_string, status=200,
-              content_type='application/json')
-
-def mock_auth_failure():
-
-	url = '{0}/api/v1/users/me/' . format(settings.USERSERVICE_BASE_URL)		
-	responses.add(responses.GET, url,
-              body='', status=401,
-              content_type='application/json')
 
 class ProjectModelTestCase(TestCase):
 
@@ -98,7 +76,7 @@ class ProjectEndpointTestCase(TestCase):
 		p1 = Project.quick_create(title="P1", description="Search me", is_billable=True)
 		p2 = Project.quick_create(title="P2", is_billable=True)
 		p3 = Project.quick_create(title="P3", is_active=False)
-		p4 = Project.quick_create(title="P4", user=self.joe_soap.pk)
+		p4 = Project.quick_create(title="P4", user=self.joe_soap.pk, description="Search me too")
 		p5 = Project.quick_create(title="P5", user=self.joe_soap.pk)
 		p6 = Project.quick_create(title="P6")
 
@@ -110,101 +88,122 @@ class ProjectEndpointTestCase(TestCase):
 
 
 	@responses.activate
-	def test_get_projects_list_requires_auth(self):
+	def test_get_projects_list_returns_empty_list_if_no_user_is_specified(self):
 
-		mock_auth_failure()
-		response = self.c.get("/api/v1/projects/")			
-		assert response.status_code == 403, 'Expect permission denied'
+		response = self.c.get("/projects/")			
+		assert response.status_code == 200
+		assert len(response.json()) == 0
 
 	@responses.activate
 	def test_get_project_list(self):
 
-		mock_auth_success(self.joe_soap)
+		self.c.login(username="joe", password="test")
 		#self.c.logout()
 		#login_result = self.c.login(username="joe", password="test")
 
-		response = self.c.get("/api/v1/projects/")
+		response = self.c.get("/projects/")
 
 		assert response.status_code == 200, 'Expect 200 OK'
-		assert len(json.loads(response.content)) == 2, 'Expect 2 projects back'
+		assert len(response.json()) == 2, 'Expect 2 projects back'
 
 	@responses.activate
 	def test_get_project_list_admin_gets_all_projects(self):
 
-		mock_auth_success(self.joe_admin)
+		self.c.login(username="admin", password="test")
 		#self.c.logout()
 		#login_result = self.c.login(username="joe", password="test")
 
-		response = self.c.get("/api/v1/projects/")
+		response = self.c.get("/projects/")
 
 		assert response.status_code == 200, 'Expect 200 OK'
-		assert len(json.loads(response.content)) == 6, 'Expect 6 projects back'
+		assert len(response.json()) == 6, 'Expect 6 projects back'
 
 	@responses.activate
 	def test_get_project_list_filter_on_active(self):
 
-		mock_auth_success(self.joe_admin)
-		response = self.c.get("/api/v1/projects/?is_active=False")
+		self.c.login(username="joe", password="test")
+		response = self.c.get("/projects/?is_active=False")
 
-		titles = [project.get("title") for project in json.loads(response.content)]
-		expected_titles = ['P3'] 
-		assert titles == expected_titles, 'Expect results to be filtered on is_active=False'
+		for project in response.json(): 
+			assert project.get("is_active") == False, \
+				'Assert that not proejcts are returned with is_active = True. But: {} returned True' . format (project)
+		
 
 	@responses.activate
 	def test_get_project_list_filter_on_billable(self):
 
-		mock_auth_success(self.joe_admin)
-		response = self.c.get("/api/v1/projects/?is_billable=True")
+		self.c.login(username="joe", password="test")
+		response = self.c.get("/projects/?is_billable=True")
 
-		titles = [project.get("title") for project in json.loads(response.content)]
-		expected_titles = ['P1', 'P2'] 
-		assert titles == expected_titles, 'Expect results to be filtered on is_billable=True'
+		for project in response.json(): 
+			assert project.get("is_active") == False, \
+				'Assert that not proejcts are returned with is_billable= False. But: {} returned False' . format (project)
+		
 
 	@responses.activate
 	def test_get_project_list_search_title(self):
+		"""Admin can search all projects by title"""
 
-		mock_auth_success(self.joe_admin)
-		response = self.c.get("/api/v1/projects/?search=P1")
+		self.c.login(username="admin", password="test")
+		response = self.c.get("/projects/?search=P1")
 
-		titles = [project.get("title") for project in json.loads(response.content)]
+		titles = [project.get("title") for project in response.json()]
 		expected_titles = ['P1'] 
 		assert titles == expected_titles, 'Expect search to return matching title'
 
 	@responses.activate
 	def test_get_project_list_search_description(self):
+		"""User can search their projects by description"""
 
-		mock_auth_success(self.joe_admin)
-		response = self.c.get("/api/v1/projects/?search=Search")
+		self.c.login(username="joe", password="test")
+		response = self.c.get("/projects/?search=Search")
 
-		titles = [project.get("title") for project in json.loads(response.content)]
-		expected_titles = ['P1'] 
-		assert titles == expected_titles, 'Expect search to return matching description'
+		titles = [project.get("title") for project in response.json()]
+		expected_titles = ['P4'] # user only gets their own projects
+		
+		assert titles == expected_titles, 'Expected {}. Got: {}' . format (expected_titles, titles)
+
+	def test_get_project_list_user_search_description(self):
+		"""Admin can search all projects by description"""
+
+		self.c.login(username="admin", password="test")
+		response = self.c.get("/projects/?search=Search")
+
+		titles = [project.get("title") for project in response.json()]
+		expected_titles = ['P1', 'P4'] 
+		assert titles == expected_titles, 'Expected {}. Got: {}' . format (expected_titles, titles)
+
 
 	@responses.activate
 	def test_get_project_orders_by_title(self):
 
-		mock_auth_success(self.joe_admin)
-		response = self.c.get("/api/v1/projects/?ordering=title")
+		self.c.login(username="admin", password="test")
+		response = self.c.get("/projects/?ordering=title")
 
-		titles = [project.get("title") for project in json.loads(response.content)]
+		titles = [project.get("title") for project in response.json()]
 		expected_titles = ['P1', 'P2', 'P3', 'P4', 'P5', 'P6'] 
+		
 		assert titles == expected_titles, 'Expect search results ordered by title'
 
 
 	@responses.activate
-	def test_get_project(self):
+	def test_get_project_user_gets_own_projects(self):
+		"""A user should only see projects in which they are staffed"""
+
+		normal_user = User.objects.get(username="joe")
 
 		project = Project.quick_create()
-		mock_auth_success(self.joe_admin)
+		project2 = Project.quick_create()
 
-		response = self.c.get("/api/v1/projects/{0}/" . format (project.pk))
+		resource = Resource.quick_create(project=project, user=normal_user.pk)
 
-		expected_fields = ['pk', 'title', 'description', 'start_date', 'end_date', 'is_billable', 'is_active', 'task_set', 'resource_set']
+		self.c.login(username=normal_user.username, password="test")
 
-		for field in expected_fields:
-			assert response.data.get(field, "NOTSET") != "NOTSET", 'Assert field {0} is returned in the response' . format (field)
-
+		response = self.c.get("/projects/{0}/" . format (project.pk))		
 		assert response.status_code == 200, 'Expect 200 OK'
+		
+		# todo: 
+		# put a proper assertion in here.
 
 class TaskEndpointTestCase(TestCase):
 

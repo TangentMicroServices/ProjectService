@@ -1,15 +1,11 @@
 from django.conf.urls import url, include
-from models import Project, Resource, Task
+from api.models import Project, Resource, Task
 from rest_framework import routers, serializers, viewsets
 from rest_framework.decorators import detail_route, list_route
 from rest_framework.response import Response
 from django.conf import settings
 from django.contrib.auth.models import User, Group
-import os
-import django_filters
-import responses
-import json
-import pprint
+import os, django_filters, responses, json, pprint
 
 # Serializers define the API representation.
 class TaskProjectSerializer(serializers.ModelSerializer):
@@ -141,7 +137,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
     filter_class = ProjectFilter
-    search_fields = ('title', 'description')
+    search_fields = ('title', 'description', 'is_active', )
     ordering_fields = ('start_date', 'end_date', 'title')
 
     def get_queryset(self):
@@ -200,10 +196,10 @@ class ProjectViewSet(viewsets.ModelViewSet):
         * Create webhook in github to pivotal, hipchat 
         * Create webhook in pivotal to github
         '''
-
-        print os.environ['PIVOTAL_TOKEN']
-        print os.environ['HIPCHAT_TOKEN']
-        print os.environ['GITHUB_TOKEN']
+        pass
+        #print os.environ['PIVOTAL_TOKEN']
+        #print os.environ['HIPCHAT_TOKEN']
+        #print os.environ['GITHUB_TOKEN']
 
 # Routers provide an easy way of automatically determining the URL conf.
 project_router = routers.DefaultRouter()
