@@ -213,9 +213,15 @@ class KongConsumerMiddlewareTestCase(TestCase):
 
 		Project.quick_create(user=self.user.pk)
 
+	def test_user_is_not_logged_in_without_headers(self):
+		
+		response = self.c.get("/projects/")
+		num_projects = len(response.json())
+		assert num_projects == 0, \
+			'Expect 0 project. Got: {}' . format (num_projects)
+
 
 	def test_user_is_logged_in(self):
-		
 		
 		headers = {
 			'X-Consumer-Custom-ID':self.user.pk, 
@@ -223,6 +229,9 @@ class KongConsumerMiddlewareTestCase(TestCase):
 		c = Client(**headers)
 		
 		response = c.get("/projects/", **headers)
+		num_projects = len(response.json())
+		assert num_projects == 1, \
+			'Expect exactly 1 project. Got: {}' . format (num_projects)
 
 
 
