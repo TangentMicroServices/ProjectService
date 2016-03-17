@@ -141,6 +141,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
     ordering_fields = ('start_date', 'end_date', 'title')
 
     def get_queryset(self):
+        
         user = self.request.user
 
         if user.is_superuser:

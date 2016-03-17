@@ -11,11 +11,12 @@ class KongConsumerMiddleware(object):
     """
     def process_request(self, request):
 
-
-        username = request.META.get('HTTP_X_CONSUMER_USERNAME', None)
-        id = request.META.get('HTTP_X_CONSUMER_CUSTOM_ID', None)
-
-        print(request.META)
+        # handle both possible cases:
+        username = request.META.get('HTTP_X_CONSUMER_USERNAME', \
+                        request.META.get('X-Consumer-Username', None))
+        id = request.META.get('HTTP_X_CONSUMER_CUSTOM_ID', \
+                    request.META.get('X-Consumer-Custom-ID', None))
+        
         if not username is None:
             try: 
                 user = User.objects.get(username=username)
