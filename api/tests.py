@@ -24,8 +24,6 @@ class ProjectModelTestCase(TestCase):
 		assert isinstance(project, Project), 'Project instance is created'
 
 	
-
-
 class ResourceModelTestCase(TestCase):
 
 	def test_resource_quick_create(self):

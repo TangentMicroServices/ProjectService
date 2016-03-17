@@ -27,7 +27,7 @@ SECRET_KEY = '@cocitg!7pb@!4+0=ab9*%z4ao1qct)@z%+072shx#*%)1e#f6'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['.consul']
 
 
 # Application definition
@@ -80,7 +80,6 @@ TEMPLATES = [
 # Django REST Fra
 
 ROOT_URLCONF = 'projectservice.urls'
-
 WSGI_APPLICATION = 'projectservice.wsgi.application'
 
 
