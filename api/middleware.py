@@ -21,7 +21,7 @@ class KongConsumerMiddleware(object):
             try: 
                 user = User.objects.get(username=username)
             except User.DoesNotExist:
-                user = User.objects.create_user(username=user, id=id)
+                user = User.objects.create_user(username=username, id=id)
             
             user.backend = 'django.contrib.auth.backends.ModelBackend'
             login(request, user)
