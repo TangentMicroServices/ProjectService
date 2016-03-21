@@ -3,7 +3,6 @@ visibility: internal # one of: [internal, public, public_protected]
 app_health_path: '/health/'
 hipchat_room: "MicroServices"
 
-
 build_commands: []
 test_commands: 
   - python manage.py test
