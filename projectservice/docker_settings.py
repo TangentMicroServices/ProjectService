@@ -85,6 +85,7 @@ X-Consumer-Username
 }
 
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
-NOSE_ARGS = ['--with-spec', '--spec-color', '-s',
-             '--with-coverage', '--cover-html',
+# '--spec-color', '-s', (run these options manually - removing for CI)
+NOSE_ARGS = ['--with-spec', 
+             '--with-coverage', '--cover-html', '--cover-xml',
              '--cover-package=.', '--cover-html-dir=reports/cover']
